@@ -29,7 +29,7 @@ def download_data_from_baostock(
     """
     # 根据起始时间创建存储目录
     script_dir = os.path.abspath("..") # 获取当前脚本上一级目录绝对路径
-    save_dir = script_dir+"/stock_data/qilb_cn_data_from_baostock/"+start_date+"~"+end_date
+    save_dir = script_dir+"/stock_data/qlib_cn_data_from_baostock/"+start_date+"~"+end_date
     try:
         os.mkdir(save_dir)
         print(f"目录创建成功")
@@ -52,9 +52,7 @@ def download_data_from_baostock(
     bs.login()
     # 获取起始日期所有股票代码  
     stock_rs = bs.query_all_stock(start_date)
-    print(stock_rs)
     stock_df = stock_rs.get_data() 
-    print(stock_df)
     # 获取结束日期所有股票代码(注:当日最新数据在17:30后更新)
     stock_today_rs = bs.query_all_stock(end_date)
     stock_today_df = stock_today_rs.get_data()
@@ -124,18 +122,17 @@ def transform_csv_into_bin(
     注意：调用完此函数后，需删除缓存文件夹"date,open,close,high,low,volume,turn,pctChg,peTTM"后，才能进行下一次调用
     """
     script_dir = os.path.abspath("..") # 获取当前脚本上一级目录绝对路径
-    sys.path.insert(0, script_dir+"/qlib/scripts")
+    csv_dir = script_dir+"/stock_data/qlib_cn_data_from_baostock/"+date+"/csv"
+    bin_dir = script_dir+"/stock_data/qlib_cn_data_from_baostock/"+date
+    sys.path.append(script_dir+"/qlib/scripts") # 添加上一级目录到系统路径
     from dump_bin import DumpDataAll
-    print(script_dir)
-    csv_dir = script_dir+"/stock_data/qilb_cn_data_from_baostock/"+date+"/csv"
-    bin_dir = script_dir+"/stock_data/qilb_cn_data_from_baostock/"+date
     dump_util = DumpDataAll(csv_dir, bin_dir, fields)
     dump_util.dump()
     print("转换完成")
     
 def generate_dataset(date):
     # 从qlib读取数据
-    qlib.init(provider_uri="E:/PythonProject/test/stock_data/qilb_cn_data_from_baostock/"+date)
+    qlib.init(provider_uri="E:/PythonProject/test/stock_data/qlib_cn_data_from_baostock/"+date)
     stock_list = data.D.instruments(market = "all")
     data_qlib = data.D.features(instruments = stock_list,
                                 fields = ['$high','$low','$open','$close','$pctChg','$volume','$turn'], 
@@ -145,7 +142,7 @@ def generate_dataset(date):
 
 if __name__ == '__main__':
     # download_data_from_baostock(start_date="2025-04-07", end_date="2025-05-19", adjustflag = "1")
-    # transform_csv_into_bin("2023-09-01~2023-10-23")
+    # transform_csv_into_bin("2023-08-30~2024-05-20")
     # generate_dataset("2024-04-10~2025-04-10")
-    download_data_from_xtquant("20250515","20250519")
+    # download_data_from_xtquant("20250515","20250519")
     print("You can do it!")
